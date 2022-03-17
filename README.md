@@ -33,7 +33,9 @@ moniker_name="$NAME_OF_THE_MONIKER"
     `ansible-playbook -i VALIDATOR.inventory playbooks/04_cerberus_deployer.yaml`
 
 #Step 4:
+
     `Wait for the validator to be in sync (cerberusd status) and then run the create-validator command:`
+
     ```cerberusd tx staking create-validator \
   --from "<key-name>" \
   --amount "1000000000000ucrbrus" \
