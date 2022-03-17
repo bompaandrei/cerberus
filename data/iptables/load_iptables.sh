@@ -1,7 +1,6 @@
 #!/bin/bash
 # Append the following line to /etc/crontab file
 # @reboot root /etc/cerberus-firewall/load_iptables.sh
-/sbin/iptables-restore < /etc/{{ validator_username }}-firewall/iptables.up.rules
 echo "Stopping firewall and allowing everyone..."
 iptables -F
 iptables -X
