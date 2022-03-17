@@ -3,7 +3,7 @@ Holds ansible automation for Cerberus project.
 
 https://www.cerberus.zone/running-a-validator.html
 
-Create an inventory file that cointains the following:
+Create an inventory file that contains the following:
 
 ```
 [$NAME.cerberus]
@@ -28,7 +28,7 @@ ansible-playbook -i VALIDATOR.inventory playbooks/03_cerberus_dependency_deploye
 ```
 
 ### Step 2:
-## At this step Cerberus is installed, Moniker initiated and the wallet is created
+## Cerberus is installed, Moniker initiated and the wallet is created
 ```
 cd /home/cerberusjah/; ./cerberus_installer.sh
 ```
