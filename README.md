@@ -26,17 +26,22 @@ ansible-playbook -i VALIDATOR.inventory playbooks/01_linux_config.yaml
 ansible-playbook -i VALIDATOR.inventory playbooks/02_firewall.yaml
 ansible-playbook -i VALIDATOR.inventory playbooks/03_cerberus_dependency_deployer.yaml
 ```
+
 ### Step 2:
 ## At this step Cerberus is installed, Moniker initiated and the wallet is created
-`Run /home/cerberusjah/cerberus_installer.sh script`
+```
+cd /home/cerberusjah/; ./cerberus_installer.sh
+```
 ```
 cerberusd init "${MONIKER_NAME}" --chain-id cerberus-chain-1
 ```
-
-`Run /home/cerberusjah/cerberus_config.sh script`
+```
+cd /home/cerberusjah/; ./cerberus_config.sh
+```
 ```
 cerberusd keys add <key-name> --keyring-backend os
 ```
+
 ### Step 3:
 ## This will only create the service file for systemd and start the service
 ```
