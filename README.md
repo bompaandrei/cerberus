@@ -1,5 +1,5 @@
-# cerberus
-Holds ansible automation for Cerberus project 
+# cerberus - OS: Ubuntu 20.04 LTS
+Holds ansible automation for Cerberus project.
 
 https://www.cerberus.zone/running-a-validator.html
 
