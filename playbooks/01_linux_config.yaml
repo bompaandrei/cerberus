@@ -1,0 +1,38 @@
+---
+- name: Configure Linux system
+  hosts: all
+  remote_user: root
+  tasks:
+  - include_vars: ../vars/common.yaml
+  - name: Set hostname on {{ validator_owner }}
+    ansible.builtin.hostname:
+      name: "{{ validator_owner }}.{{ validator_domain }}"
+
+  - name: RUN apt-get update
+    ansible.builtin.shell:
+    args:
+      cmd: apt-get update -y
+
+  - name: RUN system upgrade
+    ansible.builtin.shell:
+    args:
+      cmd: apt-get upgrade -y
+
+  - name: Install linux packages
+    ansible.builtin.package:
+      name: "{{ item }}"
+    loop:
+      - "{{ linux_packages }}"
+
+  - name: Enable and be sure that fail2ban is started
+    ansible.builtin.systemd:
+      enabled: yes
+      state: started
+      name: fail2ban.service
+
+  - name: Create {{ validator_username }} username
+    ansible.builtin.user:
+      name: "{{ validator_username }}"
+      shell: /bin/bash
+      comment: CERBERUSJAH user. Jah jah bless!
+      create_home: yes

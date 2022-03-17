@@ -1,0 +1,28 @@
+---
+- name: Cerberus Dependency Deployer
+  hosts: all
+  remote_user: root
+  tasks:
+    - include_vars: ../vars/common.yaml
+
+
+
+##### cerberus_installer.sh should be started manually #####
+
+    - name: Deploy cerberus.service
+      ansible.builtin.template:
+        src: ../data/cerberus/cerberus.service
+        dest: /etc/systemd/system/cerberus.service
+
+    - name: Systemd daemon-reload
+      ansible.builtin.shell: "{{ item }}"
+      with_items:
+        - systemctl daemon-reload
+      args:
+        executable: /bin/bash
+
+    - name: Enable and be sure that cerberus.service is running
+      ansible.builtin.systemd:
+        enabled: yes
+        state: started
+        name: cerberus.service

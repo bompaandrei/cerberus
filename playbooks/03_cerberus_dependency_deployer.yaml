@@ -1,0 +1,115 @@
+---
+- name: Cerberus Dependency Deployer
+  hosts: all
+  remote_user: root
+  tasks:
+    - include_vars: ../vars/common.yaml
+
+    - name: Fresh start. Delete everything.
+      ansible.builtin.shell:
+      args:
+        cmd: "{{ item }}"
+      with_items:
+        - rm -rf /home/{{ validator_username }}/go
+        - rm -rf /home/{{ validator_username }}/{{ go_version }}
+
+    - name: Deploy Go - for user root
+      ansible.builtin.shell:
+      args:
+        cmd: "{{ item }}"
+      with_items:
+        - wget https://go.dev/dl/{{ go_version }} -O /home/{{ validator_username }}/{{ go_version }}
+        - rm -rf /usr/local/go
+        - tar -C /usr/local -xzf /home/{{ validator_username }}/{{ go_version }}
+        - touch /etc/profile.d/gopath.sh
+        - chown {{ validator_username }} /home/{{ validator_username }}/{{ go_version }}
+        - rm -rf /home/{{ validator_username }}/go
+
+    - name: Deploy Go - user
+      become: true
+      become_user: "{{ validator_username }}"
+      ansible.builtin.shell:
+      args:
+        cmd: "{{ item }}"
+      with_items:
+        - tar -C /home/{{ validator_username }}/ -xzf /home/{{ validator_username }}/{{ go_version }}
+
+    - name: Set system wide environment variable
+      blockinfile:
+        path: /etc/profile.d/gopath.sh
+        block: |
+          export PATH=$PATH:/usr/local/go/bin
+
+    - name: Configure sudo for {{ validator_username }}
+      blockinfile:
+        path: /etc/sudoers
+        block: |
+          {{ validator_username }}		ALL=(ALL:ALL) NOPASSWD: ALL
+
+    - name: Set user's environment variables
+      become: true
+      become_user: "{{ validator_username }}"
+      blockinfile:
+        path: /home/{{ validator_username }}/.bashrc
+        block: |
+          export GOROOT=/usr/local/go
+          export GOPATH=/home/{{ validator_username }}/go
+          export GO111MODULE=on
+          export PATH=$PATH:/usr/local/go/bin:/home/{{ validator_username }}/go/bin
+          export MONIKER_NAME={{ moniker_name }}
+
+    - name: Touch cerberus_installer.sh
+      ansible.builtin.shell: "{{ item }}"
+      with_items:
+        - touch /home/{{ validator_username }}/cerberus_installer.sh
+      args:
+        executable: /bin/bash
+
+    - name: Create cerberus_installer.sh
+      become: true
+      become_user: "{{ validator_username }}"
+      blockinfile:
+        path: /home/{{ validator_username }}/cerberus_installer.sh
+        block: |
+          #/bin/bash
+          cd /home/{{ validator_username }}/
+          rm -rf cerberus
+          git clone https://github.com/cerberus-zone/cerberus.git
+          cd cerberus
+          git fetch -a
+          git checkout v1.0.1
+          make install && cd ~/go/bin && sudo cp cerberusd /usr/local/bin
+
+    - name: Touch cerberus_config.sh
+      ansible.builtin.shell: "{{ item }}"
+      with_items:
+        - touch /home/{{ validator_username }}/cerberus_config.sh
+      args:
+        executable: /bin/bash
+
+    - name: Create cerberus_config.sh
+      become: true
+      become_user: "{{ validator_username }}"
+      blockinfile:
+        path: /home/{{ validator_username }}/cerberus_config.sh
+        block: |
+          #/bin/bash
+          cd $HOME/.cerberus/config/
+          PEERS=$(curl https://raw.githubusercontent.com/cerberus-zone/cerberus_genesis/main/peers.txt | head -n 14 | sed 's/$/,/' | tr -d '\n' | sed '$ s/.$//'); sed "s/persistent_peers = \"\"/persistent_peers = \"$PEERS\"/" $HOME/.cerberus/config/config.toml -i
+          
+          SEEDS=$(curl https://raw.githubusercontent.com/cerberus-zone/cerberus_genesis/main/seeds.txt | head -n 1 | sed 's/$/,/' | tr -d '\n' | sed '$ s/.$//'); sed "s/seeds = \"\"/seeds = \"$SEEDS\"/" $HOME/.cerberus/config/config.toml -i
+
+          cd $HOME/.cerberus/config/
+          wget -O $HOME/.cerberus/config/genesis.json https://raw.githubusercontent.com/cerberus-zone/cerberus_genesis/main/genesis.json
+
+
+    - name: Make cerberus_installer.sh and cerberus_config.sh executable
+      become: true
+      become_user: "{{ validator_username }}"
+      ansible.builtin.shell:
+      args:
+        cmd: "{{ item }}"
+        executable: /bin/bash
+      with_items:
+        - chmod +x /home/{{ validator_username }}/cerberus_installer.sh
+        - chmod +x /home/{{ validator_username }}/cerberus_config.sh

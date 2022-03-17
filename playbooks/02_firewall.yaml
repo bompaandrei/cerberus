@@ -1,0 +1,34 @@
+---
+- name: Configure Linux system
+  hosts: all
+  remote_user: root
+  tasks:
+  - include_vars: ../vars/common.yaml
+  - name: Make the /etc/{{ validator_username }}-firewall/ directory
+    ansible.builtin.file:
+      path: "/etc/{{ validator_username }}-firewall"
+      state: directory
+
+  - name: Copy load_iptables.sh to /etc/{{ validator_username }}-firewall/ on {{ validator_owner }}
+    ansible.builtin.template:
+      src: ../data/iptables/load_iptables.sh
+      dest: "/etc/{{ validator_username }}-firewall/load_iptables.sh"
+      mode: '0755'
+
+  - name: Crontab to load iptables at boot time
+    ansible.builtin.lineinfile:
+      path: /etc/crontab
+      line: "@reboot root /etc/{{ validator_username }}-firewall/load_iptables.sh"
+
+  - name: Run /etc/{{ validator_username }}-firewall/load_iptables.sh script. LOAD IPTABLE RULES
+    ansible.builtin.shell: "{{ item }}"
+    with_items:
+      - /etc/{{ validator_username }}-firewall/load_iptables.sh
+    args:
+      executable: /bin/bash
+
+  - name: Restart fail2ban on {{ validator_owner }}
+    ansible.builtin.systemd:
+      enabled: yes
+      state: restarted
+      name: fail2ban.service

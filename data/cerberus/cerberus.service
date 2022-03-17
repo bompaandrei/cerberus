@@ -1,0 +1,13 @@
+[Unit]
+Description=Cerberus Node
+After=network-online.target
+
+[Service]
+User={{ validator_username }}
+ExecStart=/usr/local/bin/cerberusd start
+Restart=always
+RestartSec=3
+LimitNOFILE=4096
+
+[Install]
+WantedBy=multi-user.target

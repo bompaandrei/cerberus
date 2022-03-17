@@ -1,0 +1,10 @@
+ansible_python_interpreter: /usr/bin/python3
+linux_packages: ["iptables", "fail2ban", "python3-pip",
+                 "apt-transport-https", "curl", "unzip",
+                 "sudo", "dbus-user-session", "wget",
+                 "make", "build-essential", "gcc", "git",
+                 "jq", "chrony"]
+validator_username: cerberusjah
+validator_domain: cerberus
+go_version: "go1.17.6.linux-amd64.tar.gz"
+go_installer: "https://go.dev/dl/{{ go_version }}"
