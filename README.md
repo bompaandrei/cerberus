@@ -54,16 +54,16 @@ ansible-playbook -i VALIDATOR.inventory playbooks/04_cerberus_deployer.yaml
 
 ```
 cerberusd tx staking create-validator \
-      --from "<key-name>" \
-      --amount "1000000000000ucrbrus" \
-      --pubkey=$(cerberusd tendermint show-validator) \
+      --from "<key-name>" \ <-------------------------------------------------------------- TO BE REPLACED
+      --amount "1000000000000ucrbrus" \ <-------------------------------------------------- TO BE REPLACED
+      --pubkey=$(cerberusd tendermint show-validator) \ 
       --commission-max-change-rate 0.01 \
       --commission-max-rate 0.20 \
       --commission-rate 0.05 \
       --min-self-delegation 1 \
       --chain-id "cerberus-chain-1" \
       --moniker $MONIKER_NAME \
-      --details "Enter a description about your validation" \
-      --security-contact "security contact email" \
-      --website "www.SomeWebsite.com" -y
+      --details "Enter a description about your validation" \ <---------------------------- TO BE REPLACED
+      --security-contact "security contact email" \ <-------------------------------------- TO BE REPLACED
+      --website "www.SomeWebsite.com" -y <------------------------------------------------- TO BE REPLACED
 ```
